@@ -22,7 +22,6 @@
       owner: "root"
       group: "root"
       mode: 0755
-    when: not intellij_version_dir.stat.exists
 
 
   - name: Set ultimate IDE archive name

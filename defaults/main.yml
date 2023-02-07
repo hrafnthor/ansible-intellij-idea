@@ -5,10 +5,10 @@
 intellij_path: /opt/jetbrains/intellij
 
 # The host used when downloading archives
-intellij_download_host: https://download.jetbrains.com/
+intellij_download_host: https://download.jetbrains.com
 
 # The path appended to the host when downloading archives
-intellij_download_path: idea/
+intellij_download_path: idea
 
 # The file prefix used when downloading community archives
 intellij_community_archive_prefix: ideaIC
