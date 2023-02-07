@@ -1,0 +1,145 @@
+---
+# This file contains tasks related to downloading one client at a time.
+# It expects to be iterated over with a variable 'client'containing the
+# relvant information.
+
+- name: Download Intellij IDEA
+  block:
+
+  - name: Set IDE install location
+    ansible.builtin.set_fact:
+      intellij_version_dir: "{{ intellij_path }}/{{ client.edition }}/{{ client.version }}"
+
+
+  - name: Stat IDE install location
+    ansible.builtin.stat:
+      path:  "{{ intellij_version_dir }}"
+    register: intellij_version_dir_state
+
+
+  - name: Ensure installation directory
+    ansible.builtin.file:
+      path: "{{ intellij_version_dir }}"
+      state: directory
+      modification_time: preserve
+      access_time: preserve
+      recurse: yes
+      owner: "root"
+      group: "root"
+      mode: 0755
+    when: not intellij_version_dir_state.stat.exists
+
+
+  - name: Set ultimate IDE archive name
+    ansible.builtin.set_fact:
+      intellij_archive_name: "{{ intellij_ultimate_archive_prefix }}-{{ client.version }}.tar.gz"
+    when:
+      - not intellij_version_dir_state.stat.exists
+      - client.edition == "ultimate"
+
+
+  - name: Set community IDE archive name
+    ansible.builtin.set_fact:
+      intellij_archive_name: "{{ intellij_community_archive_prefix }}-{{ client.version }}.tar.gz"
+    when:
+      - not intellij_version_dir_state.stat.exists
+      - client.edition == "community"
+
+
+  - name: Set community archive download path
+    ansible.builtin.set_fact:
+      intellij_archive_url: "{{ intellij_download_host }}/{{ intellij_download_path }}/{{ intellij_archive_name }}"
+    when: not intellij_version_dir_state.stat.exists
+
+
+  - name: Download IDE archive
+    ansible.builtin.get_url:
+      url: "{{ intellij_archive_url }}"
+      dest: "/tmp/{{ intellij_archive_name }}"
+      checksum: "sha256: {{ client.checksum }}"
+    register: archive_download_state
+    when: not intellij_version_dir_state.stat.exists
+
+
+  - name: Extract IDEA archive
+    ansible.builtin.unarchive:
+      remote_src: yes
+      src: "/tmp/{{ intellij_archive_name }}"
+      dest: "{{ intellij_version_dir }}"
+      extra_opts: [--strip-components=1]
+      owner: "root"
+      group: "root"
+      mode: 0755
+    register: unarchive_state
+    when: not intellij_version_dir_state.stat.exists
+
+
+  - name: Set desktop entry name
+    ansible.builtin.set_fact:
+      desktop_entry_name: "intellij-{{ client.edition }}-{{ client.version }}.desktop"
+    when:
+      - client.desktop == true
+      - unarchive_state is defined
+      - unarchive_state.changed == true
+      - unarchive_state.failed == false
+
+
+  - name: Create desktop entry
+    ansible.builtin.copy:
+      src: desktop-entry.desktop
+      dest: "/usr/share/applications/{{ desktop_entry_name }}"
+      force: no
+      owner: root
+      group: root
+      mode: 0664
+    register: desktop_copy
+    when:
+      - desktop_entry_name is defined
+
+
+  - name: Set desktop entry name
+    ansible.builtin.lineinfile:
+      path: "/usr/share/applications/{{ desktop_entry_name }}"
+      regexp: "^Name="
+      line: "Name=Intellij-C {{ client.version }}"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: Set desktop entry icon
+    ansible.builtin.lineinfile:
+      path: "/usr/share/applications/{{ desktop_entry_name }}"
+      regexp: "^Icon="
+      line: "Icon={{ intellij_version_dir }}/bin/idea.svg"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: Set desktop entry binary
+    ansible.builtin.lineinfile:
+      path: "/usr/share/applications/{{ desktop_entry_name }}"
+      regexp: "^Exec="
+      line: "Exec=\"{{ intellij_version_dir }}/bin/idea.sh\" %f"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: Validate desktop entry
+    ansible.builtin.shell:
+      cmd: "desktop-file-validate /usr/share/applications/{{ desktop_entry_name }}"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  always:
+
+    - name: Cleanup downloaded archive
+      ansible.builtin.file:
+        path: "/tmp/{{ intellij_archive_name }}"
+        state: absent
+      when:
+        - intellij_archive_name is defined
