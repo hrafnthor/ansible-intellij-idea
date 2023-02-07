@@ -30,14 +30,14 @@
       intellij_archive_name: "{{ intellij_ultimate_archive_prefix }}-{{ client.version }}.tar.gz"
     when:
       - not intellij_version_dir.stat.exists
-      - client.edition == ultimate
+      - client.edition == "ultimate"
 
   - name: Set community IDE archive name
     ansible.builtin.set_fact:
       intellij_archive_name: "{{ intellij_community_archive_prefix }}-{{ client.version }}.tar.gz"
     when:
       - not intellij_version_dir.stat.exists
-      - client.edition == community
+      - client.edition == "community"
 
   - name: Set community archive download path
     ansible.builtin.set_fact:
