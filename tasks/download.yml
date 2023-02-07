@@ -11,8 +11,9 @@
       path:  "{{ intellij_path }}/{{ client.edition }}/{{ client.version }}"
     register: intellij_version_dir
 
-  - debug:
-      msg: {{ intellij_version_dir }}
+  - name: testing
+    ansible.builtin.debug:
+      msg: "{{ intellij_version_dir }}"
 
   - name: Ensure installation directory
     ansible.builtin.file:
