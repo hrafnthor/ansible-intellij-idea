@@ -14,6 +14,9 @@
 			"edition": {
 				"type": "string",
 				"enum": ["community", "ultimate"]
+			},
+			"desktop": {
+				"type": "boolean"
 			}
 		},
 		"required": [

@@ -70,19 +70,36 @@
       owner: "root"
       group: "root"
       mode: 0755
-    register: extraction_state
+    register: unarchive_state
     when: not intellij_version_dir_state.stat.exists
+
+
+ - name: Set desktop entry name
+    ansible.builtin.set_fact:
+      desktop_entry_name: "intellij-{{ client.edition }}-{{ client.version }}.desktop"
+    when:
+      - client.desktop == true
+      - unarchive_state is defined
+      - unarchive_state.changed == true
+      - unarchive_state.failed == false
+
+
+  - name: Create desktop entry
+    ansible.builtin.copy:
+      src: desktop-entry.desktop
+      dest: "/usr/share/applications/{{ desktop_entry_name }}"
+      force: no
+      owner: root
+      group: root
+      mode: 0664
+    register: desktop_copy
+    when:
+      - desktop_entry_name is defined
 
 
   - name: testing
     debug:
-      msg: "{{ archive_download_state }}"
-    when: archive_download_state is defined
-
-  - name: unarchive test
-    debug:
-      msg: "{{ extraction_state }}"
-    when: extraction_state is defined
+      msg: "{{ desktop_copy }}"
 
   always:
 
@@ -90,3 +107,5 @@
       ansible.builtin.file:
         path: "/tmp/{{ intellij_archive_name }}"
         state: absent
+      when:
+        - intellij_archive_name is defined
