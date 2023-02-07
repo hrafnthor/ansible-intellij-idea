@@ -13,7 +13,7 @@
 
   - name: Stat IDE install location
     ansible.builtin.stat:
-      path:  intellij_version_dir
+      path:  "{{ intellij_version_dir }}"
     register: intellij_version_dir_state
 
 
@@ -77,10 +77,12 @@
   - name: testing
     debug:
       msg: "{{ archive_download_state }}"
+    when: archive_download_state is defined
 
   - name: unarchive test
     debug:
       msg: "{{ extraction_state }}"
+    when: extraction_state is defined
 
   always:
 
