@@ -1,0 +1,45 @@
+---
+# This file contains tasks related to downloading one client at a time.
+# It expects to be iterated over with a variable 'client'containing the
+# relvant information.
+
+- name: Download Intellij IDEA
+  block:
+
+  - name: Stat IDE install location
+    ansible.builtin.stat:
+      path:  "{{ intellij_path }}/{{ client.edition }}/{{ client.version }}"
+    register: intellij_version_dir
+
+
+  - name: Ensure installation directory
+    ansible.builtin.file:
+      path: "{{ intellij_version_dir }}"
+      state: directory
+      modification_time: preserve
+      access_time: preserve
+      recurse: yes
+      owner: "root"
+      group: "root"
+      mode: 0755
+    when: not intellij_version_dir.stat.exists
+
+
+  - name: Set ultimate IDE archive name
+    ansible.builtin.set_fact:
+      intellij_archive_name: "{{ intellij_ultimate_archive_prefix }}-{{ client.version }}.tar.gz"
+    when:
+      - not intellij_version_dir.stat.exists
+      - client.edition == ultimate
+
+  - name: Set community IDE archive name
+    ansible.builtin.set_fact:
+      intellij_archive_name: "{{ intellij_community_archive_prefix }}-{{ client.version }}.tar.gz"
+    when:
+      - not intellij_version_dir.stat.exists
+      - client.edition == community
+
+  - name: Set community archive download path
+    ansible.builtin.set_fact:
+      intellij_archive_url: "{{ intellij_download_host }}/{{ intellij_download_path }}/{{ intellij_archive_name}}"
+    when: not intellij_version_dir.stat.exists

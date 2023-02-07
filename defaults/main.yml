@@ -1,0 +1,17 @@
+---
+# Contains default values used for the role
+
+# Defines the default installation path for Intellij IDEA
+intellij_path: /opt/jetbrains/intellij
+
+# The host used when downloading archives
+intellij_download_host: https://download.jetbrains.com/
+
+# The path appended to the host when downloading archives
+intellij_download_path: idea/
+
+# The file prefix used when downloading community archives
+intellij_community_archive_prefix: ideaIC
+
+# The file prefix used when downloading ultimate archives
+intellij_ultimate_archive_prefix: ideaIU

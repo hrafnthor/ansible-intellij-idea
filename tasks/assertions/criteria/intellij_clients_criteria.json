@@ -1,0 +1,25 @@
+{
+	"title": "intellij_clients",
+    "description": "schema for user creation",
+	"type": "array",
+	"items": {
+		"type": "object",
+		"properties": {
+			"version": {
+				"type": "string"
+			},
+			"checksum": {
+				"type": "string"
+			},
+			"edition": {
+				"type": "string",
+				"enum": ["community", "ultimate"]
+			}
+		},
+		"required": [
+			"version",
+			"checksum",
+			"edition"
+		]
+	}
+}

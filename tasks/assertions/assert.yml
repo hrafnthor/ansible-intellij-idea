@@ -1,0 +1,32 @@
+---
+# This file contains assertions for the information required for performing
+# the tasks in this role.
+
+
+- name: Assert 'intellij_path' variable
+  tags: assert,jetbrains,intellij
+  ansible.builtin.assert:
+    that:
+      - intellij_path is defined
+      - intellij_path is string
+      - intellij_path | length > 0
+
+
+- name: Assert 'intellij_clients' variable
+  tags: assert,jetbrains,intellij
+  ansible.builtin.assert:
+    that:
+      - intellij_clients is iterable
+  when:
+    - intellij_clients is defined
+
+
+- name: Validate 'intellij_clients' schema
+  tags: assert,jetbrains,intellij
+  ansible.utils.validate:
+    data: "{{ intellij_clients }}"
+    criteria:
+      - "{{ lookup('file',  './criteria/intellij_clients_criteria.json') | from_json }}"
+    engine: ansible.utils.jsonschema
+  when:
+  - intellij_clients is defined
