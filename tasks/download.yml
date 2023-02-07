@@ -75,13 +75,13 @@
 
 
  - name: Set desktop entry name
-    ansible.builtin.set_fact:
+   ansible.builtin.set_fact:
       desktop_entry_name: "intellij-{{ client.edition }}-{{ client.version }}.desktop"
-    when:
-      - client.desktop == true
-      - unarchive_state is defined
-      - unarchive_state.changed == true
-      - unarchive_state.failed == false
+   when:
+    - client.desktop == true
+    - unarchive_state is defined
+    - unarchive_state.changed == true
+    - unarchive_state.failed == false
 
 
   - name: Create desktop entry
