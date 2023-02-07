@@ -16,9 +16,8 @@
   tags: assert,jetbrains,intellij
   ansible.builtin.assert:
     that:
+      - intellij_clients is defined
       - intellij_clients is iterable
-  when:
-    - intellij_clients is defined
 
 
 - name: Validate 'intellij_clients' schema
