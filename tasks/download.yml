@@ -95,9 +95,36 @@
     when:
       - desktop_entry_name is defined
 
-  - name: testing
-    debug:
-      msg: "{{ desktop_copy }}"
+
+  - name: Set desktop entry name
+    ansible.builtin.lineinfile:
+      path: "/usr/share/applications/{{ desktop_entry_name }}"
+      regexp: "^Name="
+      line: "Name=Intellij-C {{ client.version }}"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: Set desktop entry icon
+    ansible.builtin.lineinfile:
+      path: "/usr/share/applications/{{ desktop_entry_name }}"
+      regexp: "^Icon="
+      line: "Icon={{ intellij_version_dir }}/bin/idea.svg"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: Set desktop entry binary
+    ansible.builtin.lineinfile:
+      path: "/usr/share/applications/{{ desktop_entry_name }}"
+      regexp: "^Exec="
+      line: "Exec=\"{{ intellij_version_dir }}/bin/idea.sh\" %f"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
 
   always:
 
