@@ -64,11 +64,6 @@ There are a few fields that each object can have, and they are:
 - desktop:      [boolean] Indicates if a desktop entry should be created for the IDE.
 
 
-Dependencies
-------------
-
-There are no dependencies
-
 Example Playbook
 ----------------
 
