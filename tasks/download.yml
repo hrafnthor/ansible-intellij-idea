@@ -47,3 +47,11 @@
     ansible.builtin.set_fact:
       intellij_archive_url: "{{ intellij_download_host }}/{{ intellij_download_path }}/{{ intellij_archive_name }}"
     when: not intellij_version_dir_state.stat.exists
+
+
+  - name: Download IDE archive
+    ansible.builtin.get_url:
+      url: "{{ intellij_archive_url }}"
+      dest: "/tmp/{{ intellij_archive_name }}"
+      checksum: "sha256: {{ client.checksum }}"
+    when: not intellij_version_dir_state.stat.exists
