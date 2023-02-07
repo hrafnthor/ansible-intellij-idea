@@ -59,12 +59,12 @@
 
 
  - name: Extract IDEA archive
-    ansible.builtin.unarchive:
-      remote_src: yes
-      src: "/tmp/{{ intellij_archive_name }}"
-      dest: "{{ intellij_version_dir }}"
-      extra_opts: [--strip-components=1]
-      owner: "root"
-      group: "root"
-      mode: 0755
-    when: not intellij_version_dir_state.stat.exists
+   ansible.builtin.unarchive:
+    remote_src: yes
+    src: "/tmp/{{ intellij_archive_name }}"
+    dest: "{{ intellij_version_dir }}"
+    extra_opts: [--strip-components=1]
+    owner: "root"
+    group: "root"
+    mode: 0755
+  when: not intellij_version_dir_state.stat.exists
