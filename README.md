@@ -18,7 +18,7 @@ Before the role can be used it needs to be added to the machine running the play
 2. Add the following definition inside the requirements.yml file:
 
 ```yaml
-- name: hth-android-studio
+- name: hth-intellij-idea
   src: https://github.com/hrafnthor/ansible-android-studio.git
   scm: git
 ````
