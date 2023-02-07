@@ -75,7 +75,7 @@
 
   - name: testing
     debug:
-      msg: archive_download_state
+      msg: "{{ archive_download_state }}"
 
   always:
 
