@@ -73,6 +73,7 @@
     register: unarchive_state
     when: not intellij_version_dir_state.stat.exists
 
+
   - name: Set desktop entry name
     ansible.builtin.set_fact:
       desktop_entry_name: "intellij-{{ client.edition }}-{{ client.version }}.desktop"
@@ -121,6 +122,14 @@
       path: "/usr/share/applications/{{ desktop_entry_name }}"
       regexp: "^Exec="
       line: "Exec=\"{{ intellij_version_dir }}/bin/idea.sh\" %f"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: Validate desktop entry
+    ansible.builtin.shell:
+      cmd: "desktop-file-validate /usr/share/applications/{{ desktop_entry_name }}"
     when:
       - desktop_copy is defined
       - desktop_copy.changed == true
