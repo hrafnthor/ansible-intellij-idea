@@ -10,6 +10,7 @@
     ansible.builtin.set_fact:
       intellij_version_dir: "{{ intellij_path }}/{{ client.edition }}/{{ client.version }}"
 
+
   - name: Stat IDE install location
     ansible.builtin.stat:
       path:  intellij_version_dir
@@ -35,6 +36,7 @@
     when:
       - not intellij_version_dir_state.stat.exists
       - client.edition == "ultimate"
+
 
   - name: Set community IDE archive name
     ansible.builtin.set_fact:
@@ -68,3 +70,10 @@
       group: "root"
       mode: 0755
     when: not intellij_version_dir_state.stat.exists
+
+  always:
+
+    - name: Cleanup downloaded archive
+      ansible.builtin.file:
+        path: "/tmp/{{ intellij_archive_name }}"
+        state: absent
