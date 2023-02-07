@@ -6,14 +6,16 @@
 - name: Download Intellij IDEA
   block:
 
+  - name: Set IDE install location
+    ansible.builtin.fact:
+      intellij_version_dir: "{{ intellij_path }}/{{ client.edition }}/{{ client.version }}"
+
   - name: Stat IDE install location
     ansible.builtin.stat:
-      path:  "{{ intellij_path }}/{{ client.edition }}/{{ client.version }}"
-    register: intellij_version_dir
+      path:  intellij_version_dir
+    register: intellij_version_dir_state
 
-  - name: testing
-    ansible.builtin.debug:
-      msg: "{{ intellij_version_dir }}"
+
 
   - name: Ensure installation directory
     ansible.builtin.file:
@@ -25,23 +27,24 @@
       owner: "root"
       group: "root"
       mode: 0755
+    when: not intellij_version_dir_state.stat.exists
 
 
   - name: Set ultimate IDE archive name
     ansible.builtin.set_fact:
       intellij_archive_name: "{{ intellij_ultimate_archive_prefix }}-{{ client.version }}.tar.gz"
     when:
-      - not intellij_version_dir.stat.exists
+      - not intellij_version_dir_state.stat.exists
       - client.edition == "ultimate"
 
   - name: Set community IDE archive name
     ansible.builtin.set_fact:
       intellij_archive_name: "{{ intellij_community_archive_prefix }}-{{ client.version }}.tar.gz"
     when:
-      - not intellij_version_dir.stat.exists
+      - not intellij_version_dir_state.stat.exists
       - client.edition == "community"
 
   - name: Set community archive download path
     ansible.builtin.set_fact:
-      intellij_archive_url: "{{ intellij_download_host }}/{{ intellij_download_path }}/{{ intellij_archive_name}}"
-    when: not intellij_version_dir.stat.exists
+      intellij_archive_url: "{{ intellij_download_host }}/{{ intellij_download_path }}/{{ intellij_archive_name }}"
+    when: not intellij_version_dir_state.stat.exists
