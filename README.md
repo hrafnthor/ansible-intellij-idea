@@ -58,7 +58,7 @@ There are a few fields that each object can have, and they are:
 - `version`:    [string] (required) the version number of the IDE
 - `checksum`:   [string] (required) the checksum of the archive being downloaded
 
-    -- the checksum can be gotten by navigating to the download url of the archive and appending `.sha256` to the url. For example `https://download.jetbrains.com/idea/ideaIC-2022.3.2.tar.gz.sha256`.
+    - the checksum can be gotten by navigating to the download url of the archive and appending `.sha256` to the url. For example `https://download.jetbrains.com/idea/ideaIC-2022.3.2.tar.gz.sha256`.
 
 - edition:      [enum] (required) the edition of the IDE. Can either be `community` or `ultimate`
 - desktop:      [boolean] Indicates if a desktop entry should be created for the IDE.
