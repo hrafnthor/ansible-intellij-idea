@@ -19,7 +19,7 @@ Before the role can be used it needs to be added to the machine running the play
 
 ```yaml
 - name: hth-intellij-idea
-  src: https://github.com/hrafnthor/ansible-android-studio.git
+  src: https://github.com/hrafnthor/ansible-intellij-idea.git
   scm: git
 ````
 
@@ -29,7 +29,7 @@ Before the role can be used it needs to be added to the machine running the play
 ansible-galaxy install -r .requirements.yml
 ```
 
-This will allow any playbook run from this machine to use the role hth-android-studio
+This will allow any playbook run from this machine to use the role hth-intellij-idea
 
 Role Variables
 --------------
