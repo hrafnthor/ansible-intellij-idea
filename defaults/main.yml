@@ -4,6 +4,9 @@
 # Defines the default installation path for Intellij IDEA
 intellij_path: /opt/jetbrains/intellij
 
+# Defines the default path for desktop entry files
+intellij_desktop_entry_path: /usr/share/applications
+
 # The host used when downloading archives
 intellij_download_host: https://download.jetbrains.com
 

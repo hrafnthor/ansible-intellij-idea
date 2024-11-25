@@ -1,0 +1,139 @@
+# -----------------------------------------------------------------------------
+# This file contains tasks related to intstalling Intellij clients.
+#
+# It expects to have access to a dict object called 'client'.
+# -----------------------------------------------------------------------------
+
+- name: intellij | clients | install client
+  block:
+
+  - name: intellij | clients | stat client install directory
+    ansible.builtin.stat:
+      path:  "{{ client_installation_path }}"
+    register: client_version_state
+
+
+  - name: intellij | clients | create client install directory
+    ansible.builtin.file:
+      path: "{{ client_installation_path }}"
+      state: directory
+      modification_time: preserve
+      access_time: preserve
+      recurse: yes
+      owner: "{{ intellij.location.owner | default('root') }}"
+      group: "{{ intellij.location.group | default('root') }}"
+      mode: "{{ intellij.location.mode | default('0755') }}"
+    when:
+      - not client_version_state.stat.exists
+
+
+  - name:  intellij | clients | set ultimate archive name
+    ansible.builtin.set_fact:
+      client_name: "{{ intellij_ultimate_archive_prefix }}-{{ client.version }}"
+    when:
+      - client.edition == "ultimate"
+
+  - name: intellij | clients | set community archive name
+    ansible.builtin.set_fact:
+      client_name: "{{ intellij_community_archive_prefix }}-{{ client.version }}"
+    when:
+      - client.edition == "community"
+
+  - name: intellij | clients | set client archive name
+    ansible.builtin.set_fact:
+      client_archive_name: "{{ client_name }}.tar.gz"
+    when:
+      - not client_version_state.stat.exists
+      - client.edition == "community"
+
+
+  - name: intellij | clients | set client download path
+    ansible.builtin.set_fact:
+      client_archive_url: "{{ intellij_download_host }}/{{ intellij_download_path }}/{{ client_archive_name }}"
+    when:
+      - not client_version_state.stat.exists
+
+
+  - name: intellij | clients | download client archive
+    ansible.builtin.get_url:
+      url: "{{ client_archive_url }}"
+      dest: "/tmp/{{ client_archive_name }}"
+      checksum: "sha256: {{ client.checksum }}"
+    register: client_archive_download_state
+    when:
+      - not client_version_state.stat.exists
+
+
+  - name: intellij | clients | extract client archive
+    ansible.builtin.unarchive:
+      remote_src: yes
+      src: "/tmp/{{ client_archive_name }}"
+      dest: "{{ client_installation_path }}"
+      extra_opts: [--strip-components=1]
+      owner: "{{ client.location.owner | default('root') }}"
+      group: "{{ client.location.group | default('root') }}"
+      mode: "{{ client.location.mode | default('0755') }}"
+    register: client_unarchive_state
+    when:
+      - not client_version_state.stat.exists
+
+
+  - name: intellij | clients | create desktop entry
+    ansible.builtin.copy:
+      src: desktop-entry.desktop
+      dest: "{{ client_desktop_entry_path }}"
+      owner: "{{ client.location.owner | default('root') }}"
+      group: "{{ client.location.group | default('root') }}"
+      force: no
+      mode: 0664
+    register: desktop_copy
+    when:
+      - client.desktop is defined and client.desktop
+      - client_version_state.stat.exists or (client_unarchive_state is defined and not client_unarchive_state.stat.failed)
+
+
+  - name: intellij | clients | set desktop entry name
+    ansible.builtin.lineinfile:
+      path: "{{ client_desktop_entry_path }}"
+      regexp: "^Name="
+      line: "Name={{ client_name }}"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: intellij | clients | set desktop entry icon
+    ansible.builtin.lineinfile:
+      path: "{{ client_desktop_entry_path }}"
+      regexp: "^Icon="
+      line: "Icon={{ client_installation_path }}/bin/idea.svg"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: intellij | clients | set desktop entry binary
+    ansible.builtin.lineinfile:
+      path: "{{ client_desktop_entry_path }}"
+      regexp: "^Exec="
+      line: "Exec=\"{{ client_installation_path }}/bin/idea.sh\" %f"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  - name: intellij | clients | validate desktop entry
+    ansible.builtin.shell:
+      cmd: "desktop-file-validate /usr/share/applications/{{ client_desktop_entry_name }}"
+    when:
+      - desktop_copy is defined
+      - desktop_copy.changed == true
+
+
+  always:
+    - name: intellij | download | cleanup downloaded artifact
+      ansible.builtin.file:
+        path: "/tmp/{{ client_archive_name }}"
+        state: absent
+      when:
+        - client_archive_name is defined

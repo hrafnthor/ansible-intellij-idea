@@ -2,17 +2,33 @@
 # The following role attempts to download any requested Intellij IDEA
 # clients and configure them.
 
-- name: Assert task variables
-  tags: assert,jetbrains,intellij
-  ansible.builtin.import_tasks: assertions/assert.yml
+- name: intellij | assert | validate inputs
+  ansible.utils.validate:
+    data: "{{ intellij }}"
+    criteria: "{{ lookup('file', 'assertions/criteria/intellij-criteria.json') | from_json }}"
+    engine: ansible.utils.jsonschema
   run_once: yes
   delegate_to: localhost
+  when:
+  - intellij is defined
+
+- name: intellij | files | set installation path
+  ansible.builtin.set_fact:
+    intellij_path: "{{ location.path | default(intellij_path) }}"
+
+- name: intellij | files | create installation path
+  ansible.builtin.file:
+    state: directory
+    path: "{{ intellij.location.path | default(intellij_path) }}"
+    owner: "{{ intellij.location.owner | default('root') }}"
+    group: "{{ intellij.location.group | default(intellij.location.owner) | default('root') }}"
+    mode: "{{ intellij.location.mode | default('0755') }}"
+  when:
+    - location is defined
 
 
-- name: Download clients
-  tags: software,download
-  ansible.builtin.include_tasks: download.yml
-  loop: "{{ intellij_clients }}"
+- name: intellij | clients | manage clients
+  ansible.builtin.include_tasks: clients.yml
+  loop: "{{ intellij.clients }}"
   loop_control:
     loop_var: client
-  when: intellij_clients | length > 0
