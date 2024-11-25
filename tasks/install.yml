@@ -116,7 +116,7 @@
     ansible.builtin.lineinfile:
       path: "{{ client_desktop_entry_path }}"
       regexp: "^Exec="
-      line: "Exec=\"{{ client_installation_path }}/bin/idea.sh\" %f"
+      line: "Exec=\"{{ client_installation_path }}/bin/idea\""
     when:
       - desktop_copy is defined
       - desktop_copy.changed == true
