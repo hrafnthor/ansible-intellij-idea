@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------------
+# This file contains tasks that will remove a specific Intellij installation.
+#
+# Expects to have access to the following variables:
+#
+# * client_installation_path: absolute path to the installation to remove
+#
+# * client_desktop_entry_path: absolute path to the desktop entry to remove
+# -----------------------------------------------------------------------------
+
+- name: intellij | clients | remove installation
+  ansible.builtin.file:
+    path: "{{ client_installation_path }}"
+    state: absent
+
+
+- name: intellij | clients | remove desktop entry
+  ansible.builtin.file:
+    path: "{{ client_desktop_entry_path }}"
+    state: absent

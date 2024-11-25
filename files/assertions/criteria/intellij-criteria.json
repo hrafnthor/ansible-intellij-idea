@@ -1,0 +1,109 @@
+{
+    "title": "intellij",
+    "description": "Schema for IntelliJ IDEA installation",
+    "type": "object",
+    "properties":
+    {
+        "location":
+        {
+            "type": "object",
+            "properties":
+            {
+                "path":
+                {
+                    "$ref": "#/definitions/non-empty-string"
+                },
+                "owner":
+                {
+                    "$ref": "#/definitions/non-empty-string"
+                },
+                "group":
+                {
+                    "$ref": "#/definitions/non-empty-string"
+                },
+                "mode":
+                {
+                    "ref": "#/definitions/non-empty-string"
+                }
+            },
+            "required":
+            [
+                "path",
+                "owner"
+            ]
+        },
+        "clients":
+        {
+            "type": "array",
+            "items":
+            {
+                "type": "object",
+                "properties":
+                {
+                    "version":
+                    {
+                        "$ref": "#/definitions/non-empty-string"
+                    },
+                    "checksum":
+                    {
+                        "$ref": "#/definitions/non-empty-string"
+                    },
+                    "edition":
+                    {
+                        "type": "string",
+                        "enum":
+                        [
+                            "community",
+                            "ultimate"
+                        ]
+                    },
+                    "desktop":
+                    {
+                        "type": "boolean"
+                    },
+                    "state":
+                    {
+                        "type": "string",
+                        "enum":
+                        [
+                            "absent",
+                            "present"
+                        ]
+                    }
+                },
+                "required":
+                [
+                    "version",
+                    "edition"
+                ],
+                "if":
+                {
+                    "properties":
+                    {
+                        "state":
+                        {
+                            "const": "present"
+                        }
+                    }
+                },
+                "then":
+                {
+                    "required":
+                    [
+                        "version",
+                        "checksum",
+                        "edition"
+                    ]
+                }
+            }
+        }
+    },
+    "definitions":
+    {
+        "non-empty-string":
+        {
+            "type": "string",
+            "minLength": 1
+        }
+    }
+}

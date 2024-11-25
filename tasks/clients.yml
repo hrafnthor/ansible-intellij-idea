@@ -1,0 +1,22 @@
+
+- name: intellij | clients | set desktop entry name
+  ansible.builtin.set_fact:
+    client_desktop_entry_name: "intellij-{{ client.edition }}-{{ client.version }}.desktop"
+
+- name: intellij | clients | set desktop entry path
+  ansible.builtin.set_fact:
+    client_desktop_entry_path: "{{ intellij_desktop_entry_path }}/{{ client_desktop_entry_name }}"
+
+- name: intellij | clients | set installation path
+  ansible.builtin.set_fact:
+    client_installation_path: "{{ location.path | default(intellij_path) }}/{{ client.edition }}/{{ client.version }}"
+
+- name: intellij | clients | remove client
+  ansible.builtin.include_tasks: remove.yml
+  when:
+    - client.state is defined and client.state == 'absent'
+
+- name: intellij | clients | install client
+  ansible.builtin.include_tasks: install.yml
+  when:
+    - client.state is not defined or client.state == 'present'
