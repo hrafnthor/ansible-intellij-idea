@@ -89,7 +89,7 @@
     register: desktop_copy
     when:
       - client.desktop is defined and client.desktop
-      - client_version_state.stat.exists or (client_unarchive_state is defined and not client_unarchive_state.stat.failed)
+      - client_version_state.stat.exists or (client_unarchive_state is defined and client_unarchive_state.changed)
 
 
   - name: intellij | clients | set desktop entry name
