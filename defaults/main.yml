@@ -2,19 +2,16 @@
 # Contains default values used for the role
 
 # Defines the default installation path for Intellij IDEA
-intellij_path: /opt/jetbrains/intellij
+hth_intellij_default_path: /opt/jetbrains/intellij
 
 # Defines the default path for desktop entry files
-intellij_desktop_entry_path: /usr/share/applications
+hth_intellij_default_desktop_entry_path: /usr/share/applications
 
 # The host used when downloading archives
-intellij_download_host: https://download.jetbrains.com
+hth_intellij_default_host: https://download.jetbrains.com
 
 # The path appended to the host when downloading archives
-intellij_download_path: idea
+hth_intellij_default_url_path: "/idea/"
 
-# The file prefix used when downloading community archives
-intellij_community_archive_prefix: ideaIC
-
-# The file prefix used when downloading ultimate archives
-intellij_ultimate_archive_prefix: ideaIU
+# Indicates if downloaded artifacts should be cleaned up when installation succeeds.
+hth_intellij_default_cleanup_on_install: true

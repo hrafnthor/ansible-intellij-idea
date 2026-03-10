@@ -25,12 +25,7 @@
                 {
                     "ref": "#/definitions/non-empty-string"
                 }
-            },
-            "required":
-            [
-                "path",
-                "owner"
-            ]
+            }
         },
         "clients":
         {
@@ -48,53 +43,52 @@
                     {
                         "$ref": "#/definitions/non-empty-string"
                     },
-                    "edition":
-                    {
-                        "type": "string",
-                        "enum":
-                        [
-                            "community",
-                            "ultimate"
-                        ]
-                    },
                     "desktop":
                     {
-                        "type": "boolean"
+                        "type": "object",
+                        "properties":
+                        {
+                            "name":
+                            {
+                                "$ref": "#/definitions/non-empty-string"
+                            },
+                            "keywords":
+                            {
+                                "$ref": "#/definitions/non-empty-string-array"
+                            },
+                            "remove":
+                            {
+                                "type": "boolean"
+                            }
+                        }
                     },
-                    "state":
+                    "remove":
                     {
-                        "type": "string",
-                        "enum":
-                        [
-                            "absent",
-                            "present"
-                        ]
+                        "type": "boolean"
                     }
                 },
                 "required":
                 [
-                    "version",
-                    "edition"
-                ],
-                "if":
+                    "version"
+                ]
+            },
+            "if":
+            {
+                "properties":
                 {
-                    "properties":
+                    "remove":
                     {
-                        "state":
-                        {
-                            "const": "present"
-                        }
+                        "const": false
                     }
-                },
-                "then":
-                {
-                    "required":
-                    [
-                        "version",
-                        "checksum",
-                        "edition"
-                    ]
                 }
+            },
+            "then":
+            {
+                "required":
+                [
+                    "version",
+                    "checksum"
+                ]
             }
         }
     },
@@ -104,6 +98,15 @@
         {
             "type": "string",
             "minLength": 1
+        },
+        "non-empty-string-array":
+        {
+            "type": "array",
+            "minItems": 1,
+            "items":
+            {
+                "$ref": "#/definitions/non-empty-string"
+            }
         }
     }
 }

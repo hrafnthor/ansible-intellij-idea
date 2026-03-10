@@ -1,0 +1,65 @@
+- name: "HTH | Intellij | Set client archive name"
+  ansible.builtin.set_fact:
+    hth_intellij_client_archive_name: "idea-{{ client.version }}.tar.gz"
+
+- name: "HTH | Intellij | Set client archive download path"
+  ansible.builtin.set_fact:
+    hth_intellij_client_archive_path: "/tmp/{{ hth_intellij_client_archive_name }}"
+
+- block:
+
+  - name: "HTH | Intellij | Check for downloaded client archive"
+    ansible.builtin.stat:
+      path: "{{ hth_intellij_client_archive_path }}"
+    register: hth_intellij_client_archive_stat
+
+  - name: "HTH | Intellij | Download client archive"
+    ansible.builtin.get_url:
+      url: "{{ hth_intellij_default_host }}{{ hth_intellij_default_url_path }}{{ hth_intellij_client_archive_name }}"
+      dest: "{{ hth_intellij_client_archive_path }}"
+      checksum: "sha256: {{ client.checksum }}"
+    register: hth_intellij_client_archive_download_state
+    when:
+      - not hth_intellij_client_archive_stat.stat.exists
+
+  - name: "HTH | Intellij | Create client install directory"
+    ansible.builtin.file:
+      path: "{{ hth_intellij_client_installation_path }}"
+      owner: "{{ intellij.location.owner | default('root') }}"
+      group: "{{ intellij.location.group | default('root') }}"
+      mode: "{{ intellij.location.mode | default('0755') }}"
+      state: directory
+      modification_time: preserve
+      access_time: preserve
+      recurse: yes
+    when:
+      - not hth_intellij_client_version_dir_state.stat.exists
+
+  - name: "HTH | Intellij | Extract client archive"
+    ansible.builtin.unarchive:
+      remote_src: yes
+      src: "{{ hth_intellij_client_archive_path }}"
+      dest: "{{ hth_intellij_client_installation_path }}"
+      owner: "{{ intellij.location.owner | default('root') }}"
+      group: "{{ intellij.location.group | default('root') }}"
+      extra_opts: [--strip-components=1]
+    register: hth_intellij_client_unarchive_state
+
+  - name: "HTH | Intellij | Add write permissions for custom owner group"
+    file:
+      path: "{{ hth_intellij_client_installation_path }}"
+      mode: "ug+w"
+      recurse: yes
+    when:
+      - intellij.location is defined
+      - intellij.location.group is defined
+      - intellij.location.group != 'root'
+
+  always:
+
+    - name: "HTH | Intellij | Cleanup downloaded client archive"
+      ansible.builtin.file:
+        path: "{{ hth_intellij_client_archive_path }}"
+        state: absent
+      when:
+        - hth_intellij_default_cleanup_on_install

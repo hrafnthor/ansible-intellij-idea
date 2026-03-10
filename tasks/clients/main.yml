@@ -1,0 +1,33 @@
+- name: "HTH | Intellij | Set installation path"
+  ansible.builtin.set_fact:
+    hth_intellij_client_installation_path: "{{ location.path | default(hth_intellij_default_path) }}/{{ client.version }}"
+
+- name: "HTH | Intellij | Stat client install directory"
+  ansible.builtin.stat:
+    path:  "{{ hth_intellij_client_installation_path }}"
+  register: hth_intellij_client_version_dir_state
+
+- name: "HTH | Intellij | Stat client install directory contents"
+  ansible.builtin.find:
+    paths: "{{ hth_intellij_client_installation_path }}"
+    file_type: any
+  register: hth_intellij_client_version_dir_content_state
+  when:
+    - hth_intellij_client_version_dir_state.stat.exists
+
+- name: "HTH | Intellij | Install client version"
+  ansible.builtin.include_tasks: install.yml
+  when:
+    - not hth_intellij_client_version_dir_state.stat.exists or (hth_intellij_client_version_dir_content_state.files | length == 0)
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Manage desktop entry"
+  ansible.builtin.include_tasks: desktop.yml
+
+- name: "HTH | Intellij | Remove client"
+  ansible.builtin.file:
+    path: "{{ hth_intellij_client_installation_path }}"
+    state: absent
+  when:
+    - client.remove is defined
+    - client.remove
