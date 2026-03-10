@@ -1,0 +1,76 @@
+- name: "HTH | Intellij | Set desktop entry name"
+  ansible.builtin.set_fact:
+    hth_intellij_client_desktop_entry_name: "intellij-{{ client.version }}.desktop"
+
+- name: "HTH | Intellij | Set desktop entry path"
+  ansible.builtin.set_fact:
+    hth_intellij_client_desktop_entry_path: "{{ hth_intellij_default_desktop_entry_path }}/{{ hth_intellij_client_desktop_entry_name }}"
+
+- name: "HTH | Intellij | Create desktop entry"
+  ansible.builtin.copy:
+    src: entry.desktop
+    dest: "{{ hth_intellij_client_desktop_entry_path }}"
+    owner: "{{ client.location.owner | default('root') }}"
+    group: "{{ client.location.group | default('root') }}"
+    force: no
+    mode: 0664
+  when:
+    - client.desktop is defined
+    - client.desktop.remove is not defined or not client.desktop.remove
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Set desktop entry name"
+  ansible.builtin.lineinfile:
+    path: "{{ hth_intellij_client_desktop_entry_path }}"
+    regexp: "^Name="
+    line: "Name={{ client.desktop.name | default('intellij-' + client.version) }}"
+  when:
+    - client.desktop is defined
+    - client.desktop.remove is not defined or not client.desktop.remove
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Set desktop entry icon"
+  ansible.builtin.lineinfile:
+    path: "{{ hth_intellij_client_desktop_entry_path }}"
+    regexp: "^Icon="
+    line: "Icon={{ hth_intellij_client_installation_path }}/bin/idea.svg"
+  when:
+    - client.desktop is defined
+    - client.desktop.remove is not defined or not client.desktop.remove
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Set desktop entry binary"
+  ansible.builtin.lineinfile:
+    path: "{{ hth_intellij_client_desktop_entry_path }}"
+    regexp: "^Exec="
+    line: "Exec=\"{{ hth_intellij_client_installation_path }}/bin/idea\""
+  when:
+    - client.desktop is defined
+    - client.desktop.remove is not defined or not client.desktop.remove
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Set desktop entry keywords"
+  ansible.builtin.lineinfile:
+    path: "{{ hth_intellij_client_desktop_entry_path }}"
+    regexp: "^Keywords="
+    line: "Keywords={{ client.desktop.keywords | join(';') }}"
+  when:
+    - client.desktop is defined
+    - client.desktop.remove is not defined or not client.desktop.remove
+    - client.desktop.keywords is defined
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Validate desktop entry"
+  ansible.builtin.shell:
+    cmd: "desktop-file-validate /usr/share/applications/{{ hth_intellij_client_desktop_entry_name }}"
+  when:
+    - client.desktop is defined
+    - client.desktop.remove is not defined or not client.desktop.remove
+    - client.remove is not defined or not client.remove
+
+- name: "HTH | Intellij | Remove desktop entry"
+  ansible.builtin.file:
+    path: "{{ hth_intellij_client_desktop_entry_path }}"
+    state: absent
+  when:
+    - (client.remove is defined and client.remove) or (client.desktop is defined and client.desktop.remove is defined and client.desktop.remove)
